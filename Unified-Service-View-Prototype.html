@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Varsity Spirit — Unified Service View (Prototype)</title>
+<style>
+  :root{
+    --navy:#1E2761;
+    --navy-ink:#141A47;
+    --ice:#E7ECFC;
+    --ice-deep:#CADCFC;
+    --gold:#B9791E;
+    --gold-tint:#F6E7D0;
+    --ink:#20232F;
+    --muted:#6B7280;
+    --bg:#F5F6FA;
+    --surface:#FFFFFF;
+    --border:#E3E6EE;
+    --success:#1E8E5A;
+    --success-tint:#E3F3EA;
+    --info:#2C5AA6;
+    --info-tint:#E5EDF8;
+    --warn:#B9791E;
+    --warn-tint:#F6E7D0;
+    --danger:#B23A3A;
+    --danger-tint:#F7E3E3;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+
+  a, button, input{ font-family:inherit; }
+  button:focus-visible, input:focus-visible, .chip:focus-visible{
+    outline:2px solid var(--navy);
+    outline-offset:2px;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    background:var(--navy);
+    color:#fff;
+    padding:18px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand-mark{
+    width:38px; height:38px; border-radius:50%;
+    background:var(--ice-deep);
+    display:flex; align-items:center; justify-content:center;
+    flex:none;
+  }
+  .brand-mark svg{ width:20px; height:20px; }
+  .brand-text{ display:flex; flex-direction:column; line-height:1.15; }
+  .brand-name{
+    font-family:Cambria, Georgia, "Times New Roman", serif;
+    font-weight:700;
+    font-size:19px;
+    letter-spacing:0.2px;
+  }
+  .brand-sub{
+    font-size:12px;
+    color:#B9C4EF;
+    letter-spacing:0.6px;
+    text-transform:uppercase;
+  }
+  .live-pill{
+    display:flex; align-items:center; gap:7px;
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.18);
+    padding:7px 13px;
+    border-radius:100px;
+    font-size:12.5px;
+    color:#DCE3FA;
+  }
+  .live-dot{
+    width:7px; height:7px; border-radius:50%;
+    background:#3FCF7F;
+    box-shadow:0 0 0 3px rgba(63,207,127,0.25);
+  }
+
+  /* ---------- Search zone ---------- */
+  .searchzone{
+    background:var(--navy);
+    padding:0 28px 40px;
+  }
+  .search-card{
+    max-width:900px;
+    margin:0 auto;
+  }
+  .search-row{
+    display:flex;
+    gap:10px;
+    background:var(--surface);
+    border-radius:14px;
+    padding:8px;
+    box-shadow:0 12px 28px rgba(20,26,71,0.28);
+  }
+  .search-row input{
+    flex:1;
+    border:none;
+    outline:none;
+    font-size:15.5px;
+    padding:12px 14px;
+    color:var(--ink);
+    background:transparent;
+  }
+  .search-row input::placeholder{ color:#9AA1B4; }
+  .search-btn{
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    border-radius:9px;
+    padding:0 22px;
+    font-size:14.5px;
+    font-weight:600;
+    cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .search-btn:hover{ background:var(--navy-ink); }
+
+  .try-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:14px;
+    font-size:12.5px;
+    color:#B9C4EF;
+  }
+  .try-row.hidden{ display:none; }
+  .chip{
+    background:rgba(255,255,255,0.1);
+    border:1px solid rgba(255,255,255,0.22);
+    color:#fff;
+    padding:6px 13px;
+    border-radius:100px;
+    cursor:pointer;
+    font-size:12.5px;
+    transition:background 0.15s ease, transform 0.1s ease;
+  }
+  .chip:hover{ background:rgba(255,255,255,0.2); }
+  .chip:active{ transform:scale(0.97); }
+
+  /* Mode tabs */
+  .mode-tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom:14px;
+  }
+  .mode-tab{
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.2);
+    color:#DCE3FA;
+    padding:8px 16px;
+    border-radius:100px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .mode-tab:hover{ background:rgba(255,255,255,0.15); }
+  .mode-tab.active{
+    background:#fff;
+    color:var(--navy);
+    border-color:#fff;
+  }
+
+  /* ---------- Main content ---------- */
+  main{
+    max-width:1100px;
+    margin:0 auto;
+    padding:26px 28px 60px;
+  }
+
+  .empty-state{
+    text-align:center;
+    padding:70px 20px 40px;
+    color:var(--muted);
+  }
+  .empty-state .icon-wrap{
+    width:64px; height:64px; border-radius:50%;
+    background:var(--ice);
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 18px;
+  }
+  .empty-state h2{
+    font-family:Cambria, Georgia, serif;
+    color:var(--ink);
+    font-size:22px;
+    margin:0 0 8px;
+  }
+  .empty-state p{ font-size:14.5px; max-width:420px; margin:0 auto; line-height:1.5; }
+
+  .grid{
+    display:grid;
+    grid-template-columns:300px 1fr;
+    gap:20px;
+    align-items:start;
+  }
+  @media (max-width:820px){
+    .grid{ grid-template-columns:1fr; }
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px;
+  }
+
+  /* Customer card */
+  .cust-name-row{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:8px;
+  }
+  .cust-name{
+    font-family:Cambria, Georgia, serif;
+    font-weight:700;
+    font-size:19px;
+    color:var(--ink);
+  }
+  .vip-tag{
+    background:var(--gold-tint);
+    color:var(--gold);
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:0.5px;
+    padding:3px 9px;
+    border-radius:100px;
+    white-space:nowrap;
+  }
+  .team-line{
+    color:var(--muted);
+    font-size:13.5px;
+    margin-top:2px;
+  }
+  .divider{
+    height:1px;
+    background:var(--border);
+    margin:16px 0;
+  }
+  .field-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.8px;
+    color:var(--muted);
+    margin-bottom:3px;
+  }
+  .field-value{
+    font-size:14px;
+    color:var(--ink);
+    margin-bottom:14px;
+  }
+  .stat-row{
+    display:flex;
+    gap:18px;
+    margin-top:6px;
+  }
+  .stat{
+    flex:1;
+  }
+  .stat-num{
+    font-family:Cambria, Georgia, serif;
+    font-size:22px;
+    font-weight:700;
+    color:var(--navy);
+  }
+  .stat-label{
+    font-size:11.5px;
+    color:var(--muted);
+  }
+
+  /* Order card */
+  .order-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .order-num{
+    font-family:"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size:13px;
+    color:var(--muted);
+    letter-spacing:0.3px;
+  }
+  .order-title{
+    font-family:Cambria, Georgia, serif;
+    font-size:19px;
+    font-weight:700;
+    color:var(--ink);
+    margin-top:2px;
+  }
+  .status-badge{
+    font-size:12px;
+    font-weight:700;
+    padding:6px 14px;
+    border-radius:100px;
+    white-space:nowrap;
+    height:fit-content;
+  }
+  .status-shipped{ background:var(--info-tint); color:var(--info); }
+  .status-production{ background:var(--warn-tint); color:var(--warn); }
+  .status-delivered{ background:var(--success-tint); color:var(--success); }
+
+  .items-list{
+    margin-top:16px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .item-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:11px 14px;
+    font-size:13.5px;
+    border-bottom:1px solid var(--border);
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .item-row:last-child{ border-bottom:none; }
+  .item-name{ color:var(--ink); }
+  .item-meta{ color:var(--muted); white-space:nowrap; }
+  .item-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .stock-badge{
+    font-size:11px;
+    font-weight:700;
+    padding:4px 10px;
+    border-radius:100px;
+    white-space:nowrap;
+  }
+  .stock-in{ background:var(--success-tint); color:var(--success); }
+  .stock-low{ background:var(--warn-tint); color:var(--warn); }
+  .stock-out{ background:var(--danger-tint); color:var(--danger); }
+
+  /* Inventory lookup card */
+  .inv-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .inv-name{
+    font-family:Cambria, Georgia, serif;
+    font-size:19px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .inv-sku{
+    font-family:"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size:13px;
+    color:var(--muted);
+    letter-spacing:0.3px;
+  }
+  .restock-note{
+    margin-top:14px;
+    background:var(--danger-tint);
+    color:var(--danger);
+    border-radius:10px;
+    padding:11px 14px;
+    font-size:13px;
+    font-weight:600;
+  }
+  .size-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+    margin-top:18px;
+  }
+  @media (max-width:560px){
+    .size-grid{ grid-template-columns:repeat(2, 1fr); }
+  }
+  .size-cell{
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px 14px;
+  }
+  .size-cell-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .size-name{
+    font-weight:700;
+    font-size:14px;
+    color:var(--ink);
+  }
+  .size-qty{
+    font-size:12.5px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+
+  /* Stitched status tracker — signature element */
+  .tracker{
+    margin:26px 4px 8px;
+    position:relative;
+  }
+  .tracker-line{
+    position:absolute;
+    top:11px;
+    left:11px;
+    right:11px;
+    height:0;
+    border-top:2px dashed #D7DCEC;
+  }
+  .tracker-line-fill{
+    position:absolute;
+    top:11px;
+    left:11px;
+    height:0;
+    border-top:2px dashed var(--gold);
+  }
+  .tracker-steps{
+    display:flex;
+    justify-content:space-between;
+    position:relative;
+  }
+  .tstep{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    width:90px;
+  }
+  .tdot{
+    width:22px; height:22px;
+    border-radius:50%;
+    background:var(--surface);
+    border:2px dashed #D7DCEC;
+    z-index:1;
+  }
+  .tstep.done .tdot{
+    background:var(--gold);
+    border:2px solid var(--gold);
+  }
+  .tstep.current .tdot{
+    background:#fff;
+    border:2px solid var(--gold);
+    box-shadow:0 0 0 4px var(--gold-tint);
+  }
+  .tlabel{
+    font-size:11.5px;
+    margin-top:9px;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .tstep.done .tlabel, .tstep.current .tlabel{ color:var(--ink); }
+
+  .ship-info{
+    margin-top:20px;
+    display:flex;
+    flex-wrap:wrap;
+    background:var(--bg);
+    border-radius:10px;
+    padding:14px 16px;
+  }
+  .ship-info > div{
+    margin-right:36px;
+    margin-bottom:6px;
+    min-width:130px;
+  }
+  .ship-info > div:last-child{ margin-right:0; }
+
+  .notes-card{ margin-top:20px; }
+  .notes-head{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;
+  }
+  .notes-head h3{
+    font-family:Cambria, Georgia, serif;
+    font-size:16px;
+    margin:0;
+  }
+  .add-note-btn{
+    background:var(--ice);
+    color:var(--navy);
+    border:none;
+    font-size:12.5px;
+    font-weight:700;
+    padding:7px 13px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .add-note-btn:hover{ background:var(--ice-deep); }
+  .note{
+    padding:10px 0;
+    border-bottom:1px solid var(--border);
+    font-size:13.5px;
+  }
+  .note:last-child{ border-bottom:none; }
+  .note-date{ color:var(--muted); font-size:12px; margin-right:8px; }
+  .new-note-row{
+    display:flex; gap:8px; margin-top:12px;
+  }
+  .new-note-row input{
+    flex:1;
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:9px 12px;
+    font-size:13px;
+    outline:none;
+  }
+  .new-note-row input:focus{ border-color:var(--navy); }
+  .new-note-row button{
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    padding:0 16px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+  }
+
+  footer{
+    text-align:center;
+    padding:22px 20px 34px;
+    color:var(--muted);
+    font-size:12px;
+    letter-spacing:0.2px;
+  }
+  .footer-badge{
+    display:inline-block;
+    background:var(--ice);
+    color:var(--navy);
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.4px;
+    padding:4px 10px;
+    border-radius:100px;
+    margin-bottom:10px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 4L12 20L20 4" stroke="#1E2761" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 12L12 20L16 12" stroke="#1E2761" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">Varsity Spirit</span>
+        <span class="brand-sub">Unified Service View</span>
+      </div>
+    </div>
+    <div class="live-pill">
+      <span class="live-dot"></span>
+      Connected: AS/400 + OMS + Inventory
+    </div>
+  </div>
+
+  <div class="searchzone">
+    <div class="search-card">
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tabCustomer" onclick="setMode('customer')">Customer &amp; Orders</button>
+        <button class="mode-tab" id="tabInventory" onclick="setMode('inventory')">Inventory Lookup</button>
+      </div>
+      <div class="search-row">
+        <input id="searchInput" type="text" placeholder="Search by order number, customer name, or phone…" autocomplete="off">
+        <button class="search-btn" onclick="runSearch()">Search</button>
+      </div>
+      <div class="try-row" id="tryCustomer">
+        <span>Try:</span>
+        <span class="chip" onclick="quickSearch('Sarah Martinez')">Sarah Martinez</span>
+        <span class="chip" onclick="quickSearch('VS-48213')">Order VS-48213</span>
+        <span class="chip" onclick="quickSearch('Jordan Lee')">Jordan Lee</span>
+        <span class="chip" onclick="quickSearch('Morgan Price')">Morgan Price</span>
+      </div>
+      <div class="try-row hidden" id="tryInventory">
+        <span>Try:</span>
+        <span class="chip" onclick="quickSearch('Competition Shell — Crimson/Gold')">Shell — Crimson/Gold</span>
+        <span class="chip" onclick="quickSearch('Competition Shell — Royal/White')">Shell — Royal/White</span>
+        <span class="chip" onclick="quickSearch('Practice Shorts')">Practice Shorts</span>
+        <span class="chip" onclick="quickSearch('WJ-STD-200')">SKU WJ-STD-200</span>
+      </div>
+    </div>
+  </div>
+
+  <main id="mainArea">
+    <!-- populated by JS -->
+  </main>
+
+  <footer>
+    <div class="footer-badge">Prototype — concept only</div>
+    <div>Order data: AS/400 (live) &nbsp;·&nbsp; Shipping: Carrier API &nbsp;·&nbsp; Notes: Service History &nbsp;·&nbsp; Inventory: Warehouse Feed (live)</div>
+  </footer>
+
+<script>
+  const CUSTOMERS = [
+    {
+      id: 'sarah',
+      name: 'Sarah Martinez',
+      phone: '(901) 555-0142',
+      email: 'sarah.martinez@lincolncheer.org',
+      team: 'Lincoln High Varsity Cheer',
+      since: '2022',
+      lifetimeOrders: 14,
+      vip: false,
+      order: {
+        num: 'VS-48213',
+        title: 'Competition Uniform Set',
+        items: [
+          { name: 'Competition Shell — Crimson/Gold', meta: 'Qty 2 · Size AM', sku: 'CS-CRG-100', size: 'AM' },
+          { name: 'Competition Skirt — Crimson/Gold', meta: 'Qty 2 · Size AM', sku: 'SK-CRG-100', size: 'AM' },
+          { name: 'Team Warm-Up Jacket', meta: 'Qty 1 · Size AM', sku: 'WJ-STD-200', size: 'AM' },
+        ],
+        status: 'shipped',
+        carrier: 'FedEx',
+        tracking: '7791 2043 5567',
+        eta: 'Aug 29',
+        notes: [
+          { date: 'Aug 21', text: 'Called to confirm sizing after roster change — updated to size AM, no reorder needed.' },
+          { date: 'Aug 12', text: 'Order confirmed, payment on file.' },
+        ],
+      },
+    },
+    {
+      id: 'jordan',
+      name: 'Jordan Lee',
+      phone: '(614) 555-0389',
+      email: 'jordan.lee@oakridgedance.com',
+      team: 'Oakridge Academy Dance Team',
+      since: '2024',
+      lifetimeOrders: 3,
+      vip: false,
+      order: {
+        num: 'VS-51890',
+        title: 'Practice Wear Bundle',
+        items: [
+          { name: 'Practice Camisole — Navy', meta: 'Qty 6 · Size YM', sku: 'PC-NVY-050', size: 'YM' },
+          { name: 'Practice Shorts — Navy', meta: 'Qty 6 · Size YM', sku: 'PS-NVY-051', size: 'YM' },
+        ],
+        status: 'production',
+        carrier: '—',
+        tracking: 'Not yet assigned',
+        eta: 'Sep 5 (est.)',
+        notes: [
+          { date: 'Aug 18', text: 'Coach asked about rush option — advised standard timeline still fits their Sep 12 showcase.' },
+        ],
+      },
+    },
+    {
+      id: 'morgan',
+      name: 'Morgan Price',
+      phone: '(303) 555-0267',
+      email: 'morgan.price@westfieldspirit.org',
+      team: 'Westfield Spirit Squad',
+      since: '2019',
+      lifetimeOrders: 27,
+      vip: true,
+      order: {
+        num: 'VS-55102',
+        title: 'Uniform Reorder — Replacement Top',
+        items: [
+          { name: 'Competition Shell — Royal/White', meta: 'Qty 1 · Size YL', sku: 'CS-RYW-100', size: 'YL' },
+        ],
+        status: 'delivered',
+        carrier: 'UPS',
+        tracking: '1Z 992 A40 03 8842 1163',
+        eta: 'Delivered Aug 14',
+        notes: [
+          { date: 'Aug 14', text: 'Confirmed delivery with squad manager, no issues.' },
+          { date: 'Aug 9', text: 'Replacement approved — original top damaged at regionals.' },
+          { date: 'Aug 8', text: 'Squad manager reported a torn seam on competition top, offered replacement.' },
+        ],
+      },
+    },
+  ];
+
+  const INVENTORY = [
+    {
+      sku: 'CS-CRG-100',
+      name: 'Competition Shell — Crimson/Gold',
+      sizes: { YS: 12, YM: 8, YL: 0, AS: 22, AM: 34, AL: 15 },
+      restockNote: 'Restocking size YL — expected Sep 10',
+    },
+    {
+      sku: 'SK-CRG-100',
+      name: 'Competition Skirt — Crimson/Gold',
+      sizes: { YS: 18, YM: 14, YL: 6, AS: 30, AM: 40, AL: 20 },
+    },
+    {
+      sku: 'WJ-STD-200',
+      name: 'Team Warm-Up Jacket',
+      sizes: { YS: 5, YM: 3, YL: 0, AS: 12, AM: 18, AL: 9 },
+      restockNote: 'Restocking size YL — expected Sep 18',
+    },
+    {
+      sku: 'PC-NVY-050',
+      name: 'Practice Camisole — Navy',
+      sizes: { YS: 40, YM: 55, YL: 30, AS: 60, AM: 45, AL: 25 },
+    },
+    {
+      sku: 'PS-NVY-051',
+      name: 'Practice Shorts — Navy',
+      sizes: { YS: 38, YM: 0, YL: 28, AS: 58, AM: 42, AL: 22 },
+      restockNote: 'Restocking size YM — expected Sep 8',
+    },
+    {
+      sku: 'CS-RYW-100',
+      name: 'Competition Shell — Royal/White',
+      sizes: { YS: 10, YM: 6, YL: 3, AS: 20, AM: 25, AL: 12 },
+    },
+  ];
+
+  function stockStatus(qty){
+    if(qty <= 0) return 'out';
+    if(qty < 10) return 'low';
+    return 'in';
+  }
+
+  const STOCK_LABEL = { in: 'In Stock', low: 'Low Stock', out: 'Backordered' };
+  const STOCK_CLASS = { in: 'stock-in', low: 'stock-low', out: 'stock-out' };
+
+  function getStock(sku, size){
+    const item = INVENTORY.find(i => i.sku === sku);
+    if(!item) return null;
+    const qty = item.sizes[size];
+    if(qty === undefined) return null;
+    return { qty, status: stockStatus(qty) };
+  }
+
+  function findInventoryItem(query){
+    const q = query.trim().toLowerCase();
+    if(!q) return null;
+    return INVENTORY.find(i =>
+      i.name.toLowerCase().includes(q) ||
+      i.sku.toLowerCase() === q.replace(/\s+/g,'')
+    ) || null;
+  }
+
+  const STATUS_LABELS = { shipped: 'Shipped', production: 'In Production', delivered: 'Delivered' };
+  const STATUS_CLASS = { shipped: 'status-shipped', production: 'status-production', delivered: 'status-delivered' };
+  const STAGE_ORDER = ['ordered','production','shipped','delivered'];
+  const STAGE_LABELS = { ordered:'Ordered', production:'In Production', shipped:'Shipped', delivered:'Delivered' };
+
+  function findCustomer(query){
+    const q = query.trim().toLowerCase();
+    if(!q) return null;
+    return CUSTOMERS.find(c =>
+      c.name.toLowerCase().includes(q) ||
+      c.order.num.toLowerCase().includes(q.replace(/\s+/g,'')) ||
+      c.phone.replace(/\D/g,'').includes(q.replace(/\D/g,'')) && q.replace(/\D/g,'').length > 3
+    ) || null;
+  }
+
+  let MODE = 'customer';
+
+  function setMode(mode){
+    MODE = mode;
+    document.getElementById('tabCustomer').classList.toggle('active', mode === 'customer');
+    document.getElementById('tabInventory').classList.toggle('active', mode === 'inventory');
+    document.getElementById('tryCustomer').classList.toggle('hidden', mode !== 'customer');
+    document.getElementById('tryInventory').classList.toggle('hidden', mode !== 'inventory');
+    const input = document.getElementById('searchInput');
+    input.placeholder = mode === 'customer'
+      ? 'Search by order number, customer name, or phone…'
+      : 'Search by item name or SKU…';
+    input.value = '';
+    if(mode === 'customer') renderEmpty(null);
+    else renderInventoryEmpty(null);
+  }
+
+  function quickSearch(q){
+    document.getElementById('searchInput').value = q;
+    runSearch();
+  }
+
+  document.getElementById('searchInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') runSearch();
+  });
+
+  function runSearch(){
+    const q = document.getElementById('searchInput').value;
+    if(MODE === 'inventory'){
+      const item = findInventoryItem(q);
+      if(!item){
+        renderInventoryEmpty(q.trim() ? `No match for "${q.trim()}" in this prototype — try one of the items above.` : null);
+        return;
+      }
+      renderInventoryItem(item);
+      return;
+    }
+    const customer = findCustomer(q);
+    if(!customer){
+      renderEmpty(q.trim() ? `No match for "${q.trim()}" in this prototype — try one of the names above.` : null);
+      return;
+    }
+    renderCustomer(customer);
+  }
+
+  function renderEmpty(message){
+    const main = document.getElementById('mainArea');
+    main.innerHTML = `
+      <div class="empty-state">
+        <div class="icon-wrap">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="#1E2761" stroke-width="2"/>
+            <path d="M20 20L16 16" stroke="#1E2761" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h2>${message ? "No match found" : "Search to pull up the full picture"}</h2>
+        <p>${message ? message : "Enter an order number, customer name, or phone number to see order, shipping, and account details in one place — no switching screens."}</p>
+      </div>
+    `;
+  }
+
+  function renderInventoryEmpty(message){
+    const main = document.getElementById('mainArea');
+    main.innerHTML = `
+      <div class="empty-state">
+        <div class="icon-wrap">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <rect x="4" y="7" width="16" height="13" rx="2" stroke="#1E2761" stroke-width="2"/>
+            <path d="M4 7L12 3L20 7" stroke="#1E2761" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2>${message ? "No match found" : "Search an item to see live stock"}</h2>
+        <p>${message ? message : "Enter an item name or SKU to see stock across every size, pulled straight from the warehouse feed."}</p>
+      </div>
+    `;
+  }
+
+  function stageIndex(status){ return STAGE_ORDER.indexOf(status); }
+
+  function renderTracker(status){
+    const curIdx = stageIndex(status);
+    const fraction = curIdx / (STAGE_ORDER.length - 1);
+    let steps = '';
+    STAGE_ORDER.forEach((stage, i) => {
+      let cls = '';
+      if(i < curIdx) cls = 'done';
+      else if(i === curIdx) cls = 'current';
+      steps += `<div class="tstep ${cls}"><div class="tdot"></div><div class="tlabel">${STAGE_LABELS[stage]}</div></div>`;
+    });
+    return `
+      <div class="tracker">
+        <div class="tracker-line"></div>
+        <div class="tracker-line-fill" style="width:calc((100% - 22px) * ${fraction});"></div>
+        <div class="tracker-steps">${steps}</div>
+      </div>
+    `;
+  }
+
+  function renderCustomer(c){
+    const o = c.order;
+    const main = document.getElementById('mainArea');
+
+    const itemsHtml = o.items.map(it => {
+      const stock = getStock(it.sku, it.size);
+      const badge = stock
+        ? `<span class="stock-badge ${STOCK_CLASS[stock.status]}">${STOCK_LABEL[stock.status]}${stock.status !== 'out' ? ' · ' + stock.qty : ''}</span>`
+        : '';
+      return `
+      <div class="item-row">
+        <span class="item-name">${it.name}</span>
+        <span class="item-right">
+          <span class="item-meta">${it.meta}</span>
+          ${badge}
+        </span>
+      </div>
+    `;
+    }).join('');
+
+    const notesHtml = o.notes.map(n => `
+      <div class="note"><span class="note-date">${n.date}</span>${n.text}</div>
+    `).join('');
+
+    main.innerHTML = `
+      <div class="grid">
+        <div class="card">
+          <div class="cust-name-row">
+            <div>
+              <div class="cust-name">${c.name}</div>
+              <div class="team-line">${c.team}</div>
+            </div>
+            ${c.vip ? '<span class="vip-tag">VIP</span>' : ''}
+          </div>
+          <div class="divider"></div>
+          <div class="field-label">Phone</div>
+          <div class="field-value">${c.phone}</div>
+          <div class="field-label">Email</div>
+          <div class="field-value">${c.email}</div>
+          <div class="field-label">Customer since</div>
+          <div class="field-value">${c.since}</div>
+          <div class="divider"></div>
+          <div class="stat-row">
+            <div class="stat">
+              <div class="stat-num">${c.lifetimeOrders}</div>
+              <div class="stat-label">Lifetime orders</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div class="order-head">
+              <div>
+                <div class="order-num">${o.num}</div>
+                <div class="order-title">${o.title}</div>
+              </div>
+              <span class="status-badge ${STATUS_CLASS[o.status]}">${STATUS_LABELS[o.status]}</span>
+            </div>
+
+            <div class="items-list">${itemsHtml}</div>
+
+            ${renderTracker(o.status)}
+
+            <div class="ship-info">
+              <div>
+                <div class="field-label">Carrier</div>
+                <div class="field-value" style="margin-bottom:0;">${o.carrier}</div>
+              </div>
+              <div>
+                <div class="field-label">Tracking</div>
+                <div class="field-value" style="margin-bottom:0;">${o.tracking}</div>
+              </div>
+              <div>
+                <div class="field-label">${o.status === 'delivered' ? 'Delivered' : 'ETA'}</div>
+                <div class="field-value" style="margin-bottom:0;">${o.eta}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card notes-card">
+            <div class="notes-head">
+              <h3>Notes &amp; call log</h3>
+              <button class="add-note-btn" onclick="focusNoteInput()">+ Add note</button>
+            </div>
+            <div id="notesList">${notesHtml}</div>
+            <div class="new-note-row">
+              <input id="newNoteInput" type="text" placeholder="Log this call…">
+              <button onclick="addNote('${c.id}')">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderInventoryItem(item){
+    const main = document.getElementById('mainArea');
+    const sizeOrder = ['YS','YM','YL','AS','AM','AL'];
+    const cellsHtml = sizeOrder.filter(s => item.sizes[s] !== undefined).map(s => {
+      const qty = item.sizes[s];
+      const status = stockStatus(qty);
+      return `
+        <div class="size-cell">
+          <div class="size-cell-top">
+            <span class="size-name">${s}</span>
+            <span class="stock-badge ${STOCK_CLASS[status]}">${STOCK_LABEL[status]}</span>
+          </div>
+          <div class="size-qty">${qty > 0 ? qty + ' units available' : 'None available'}</div>
+        </div>
+      `;
+    }).join('');
+
+    main.innerHTML = `
+      <div class="card">
+        <div class="inv-head">
+          <div>
+            <div class="inv-sku">${item.sku}</div>
+            <div class="inv-name">${item.name}</div>
+          </div>
+        </div>
+        ${item.restockNote ? `<div class="restock-note">${item.restockNote}</div>` : ''}
+        <div class="size-grid">${cellsHtml}</div>
+      </div>
+    `;
+  }
+
+  function focusNoteInput(){
+    const el = document.getElementById('newNoteInput');
+    if(el) el.focus();
+  }
+
+  function addNote(customerId){
+    const input = document.getElementById('newNoteInput');
+    const text = input.value.trim();
+    if(!text) { input.focus(); return; }
+    const customer = CUSTOMERS.find(c => c.id === customerId);
+    const today = new Date();
+    const label = today.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    customer.order.notes.unshift({ date: label, text });
+    input.value = '';
+    renderCustomer(customer);
+  }
+
+  // initial state
+  renderEmpty(null);
+</script>
+
+</body>
+</html>
